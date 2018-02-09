@@ -4,16 +4,19 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { DetailPage } from '../pages/detail/detail';
 import { ListPage } from '../pages/list/list';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
+import { BLE } from '@ionic-native/ble';
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
+    DetailPage,
     ListPage
   ],
   imports: [
@@ -24,12 +27,14 @@ import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
   entryComponents: [
     MyApp,
     HomePage,
+    DetailPage,
     ListPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
     BluetoothSerial,
+    BLE,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
