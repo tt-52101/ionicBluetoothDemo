@@ -9,9 +9,11 @@ import { AlertController } from 'ionic-angular';
 })
 export class HomePage {
 
+  message: string = 'ea2eb1';
   unpairedDevices: any;
   pairedDevices: any;
   gettingDevices: Boolean;
+  lastError: string;
 
   constructor(
     private bluetoothSerial: BluetoothSerial, 
@@ -35,6 +37,7 @@ export class HomePage {
     },
       (err) => {
         console.log(err);
+        this.lastError = err;
       })
 
     this.bluetoothSerial.list().then((success) => {
@@ -45,7 +48,10 @@ export class HomePage {
       })
   }
   success = (data) => alert(data);
-  fail = (error) => alert(error);
+  fail = (error) => {
+    alert(error)
+    this.lastError = error;
+  };
 
   selectDevice(address: any) {
 
@@ -72,10 +78,11 @@ export class HomePage {
 
   }
 
-  sendMessage(message: string = 'hello world!!!') {
-    this.bluetoothSerial.write(message).then(result => {
+  sendMessage() {
+    this.bluetoothSerial.write(this.message).then(result => {
       alert('Message sended with success!')
     }, error => {
+      this.lastError = error;
       alert('An error ocurred!')
     })
   }

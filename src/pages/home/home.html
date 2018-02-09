@@ -9,14 +9,13 @@
 
 <ion-content padding>
   <h3>Bluetooth demo application</h3>
-
   <ion-list padding>
     <button ion-button block (click)="startScanning()">scan</button>
     <ion-list-header>
       Paired Devices
     </ion-list-header>
     <ion-item *ngFor="let device of pairedDevices">
-      {{device.name}}
+      {{device.name || device.address}}
     </ion-item>
     <button ion-button block (click)="disconnect()">Disconnect</button>
     <ion-list-header>
@@ -24,10 +23,17 @@
     </ion-list-header>
     <ion-item *ngFor='let device of unpairedDevices'>
       <span (click)="selectDevice(device.address)">
-        {{device.name}}
+        {{device.name || device.address}}
       </span>
     </ion-item>
+    <ion-item>
+      <ion-label color="primary">Message</ion-label>
+      <ion-input placeholder="Text Input" [(ngModel)]="message"></ion-input>
+    </ion-item>
     <button ion-button block (click)="sendMessage()">Send Message</button>
+    <ion-item>
+      <ion-textarea placeholder="Error will display here!" [(ngModel)]="lastError"></ion-textarea>
+    </ion-item>
     <ion-spinner name="crescent" *ngIf="gettingDevices"></ion-spinner>
   </ion-list>
 </ion-content>
