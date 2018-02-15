@@ -31,6 +31,7 @@ export class HomePage {
   scan() {
     this.setStatus('Scanning for Bluetooth LE Devices');
     this.devices = [];  // clear list
+    this.connectedDevices = [];
     this.ble.scan([], 5).subscribe(
       device => this.onDeviceDiscovered(device), 
       error => this.scanError(error)
@@ -95,6 +96,7 @@ export class HomePage {
   }
 
   onDeviceDisconnected(peripheral) {
+    this.connectedDevices = this.connectedDevices.filter(d => d.id != peripheral.id);
     let toast = this.toastCtrl.create({
       message: 'The peripheral unexpectedly disconnected',
       duration: 3000,
