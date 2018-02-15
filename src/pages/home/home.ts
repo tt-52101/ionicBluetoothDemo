@@ -12,13 +12,16 @@ import { DetailPage } from '../detail/detail'
 export class HomePage {
   
   devices: any[] = [];
+  connectedDevices: any[] = [];
   statusMessage: string;
+  selectedDevices: string[];
 
-  constructor(public navCtrl: NavController, 
-              private toastCtrl: ToastController,
-              private ble: BLE,
-              private ngZone: NgZone) { 
-  }
+  constructor(
+    public navCtrl: NavController, 
+    private toastCtrl: ToastController,
+    private ble: BLE,
+    private ngZone: NgZone
+  ) { }
 
   ionViewDidEnter() {
     console.log('ionViewDidEnter');
@@ -37,12 +40,12 @@ export class HomePage {
   }
 
   onDeviceDiscovered(device) {
-    console.log('Discovered ' + JSON.stringify(device, null, 2));
+    // console.log('Discovered ' + JSON.stringify(device, null, 2));
     this.ngZone.run(() => {
       this.devices.push(device);
     });
     try {
-      this.devices.sort((a, b) => a.rssi > b.rssi ? -1 : 1)
+      this.devices.sort((a, b) => a.rssi > b.rssi ? -1 : 1);
     } catch (error) {
       console.error(error);
     }
@@ -60,16 +63,69 @@ export class HomePage {
   }
 
   setStatus(message) {
-    console.log(message);
     this.ngZone.run(() => {
       this.statusMessage = message;
     });
   }
 
+  connectSelectedDevices() {
+    this.devices.filter(d => d.state).forEach(device => {
+      this.setStatus('Connecting to ' + device.name || device.id);
+      this.ble.connect(device.id).subscribe(
+        peripheral => this.onConnected(peripheral),
+        peripheral => this.onDeviceDisconnected(peripheral)
+      )
+    })
+  }
+
+  connectDevice(device) {
+    this.setStatus('Connecting to ' + device.name || device.id);
+    this.ble.connect(device.id).subscribe(
+      peripheral => this.onConnected(peripheral),
+      peripheral => this.onDeviceDisconnected(peripheral)
+    );
+  }
+
+  onConnected(peripheral) {
+    this.ngZone.run(() => {
+      this.setStatus(peripheral.name || peripheral.id + ' connected!');
+      this.connectedDevices.push(peripheral);
+      this.devices = this.devices.filter(d => d.id != peripheral.id);
+    });
+  }
+
+  onDeviceDisconnected(peripheral) {
+    let toast = this.toastCtrl.create({
+      message: 'The peripheral unexpectedly disconnected',
+      duration: 3000,
+      position: 'middle'
+    });
+    toast.present();
+  }
+
+  sendMessageAll() {
+    var hex = 'ea2eb1';
+    var data = new Uint8Array(hex.match(/[\da-f]{2}/gi).map((h) => parseInt(h, 16)));
+    this.connectedDevices.forEach(peripheral => {
+      peripheral['characteristics'].forEach(char => {
+        this.ble.write(peripheral.id, char.service, char.characteristic, data.buffer)
+        .then(console.log).catch(console.error)
+      });
+    })
+  }
+
   deviceSelected(device) {
-    console.log(JSON.stringify(device) + ' selected');
     this.navCtrl.push(DetailPage, {
       device: device
+    });
+  }
+
+  sendMessage(peripheral) {
+    var hex = 'ea2eb1';
+    var data = new Uint8Array(hex.match(/[\da-f]{2}/gi).map((h) => parseInt(h, 16)));
+    peripheral['characteristics'].forEach(char => {
+      this.ble.write(peripheral.id, char.service, char.characteristic, data.buffer)
+      .then(console.log).catch(console.error)
     });
   }
 }

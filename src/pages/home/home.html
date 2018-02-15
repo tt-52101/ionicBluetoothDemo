@@ -12,17 +12,50 @@
   </ion-header>
   
   <ion-content>
-     <ion-list> 
-      <button ion-item *ngFor="let device of devices" (click)="deviceSelected(device)">
-        <h2>{{ device.name || 'Unnamed' }}</h2>
-        <p>{{ device.id }}</p>
-        <p>RSSI: {{ device.rssi }}</p>
-      </button>  
-     </ion-list> 
+    <ion-list>
+      <ion-item-group>
+        <ion-item-divider color="green">Connected Devices</ion-item-divider>
+        <ion-item-sliding *ngFor="let device of connectedDevices">
+          <ion-item>
+              <button ion-item>
+                <h2>{{ device.name || 'Unnamed' }}</h2>
+                <p>{{ device.id }}</p>
+                <p>RSSI: {{ device.rssi }}</p>
+              </button>  
+          </ion-item>
+          <ion-item-options side="right">
+            <button ion-button color="primary" (click)="sendMessage(device)">
+              <ion-icon name="send"></ion-icon>
+              Send
+            </button>
+            <button ion-button color="secondary" (click)="deviceSelected(device)">
+              <ion-icon name="detail"></ion-icon>
+              Details
+            </button>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-item-group>
+      <ion-item-group>
+        <ion-item-divider color="red">Devices</ion-item-divider>
+        <ion-item *ngFor="let device of devices">
+          <button ion-item (click)="connectDevice(device)">
+            <h2>{{ device.name || 'Unnamed' }}</h2>
+            <p>{{ device.id }}</p>
+            <p>RSSI: {{ device.rssi }}</p>
+          </button>  
+        </ion-item>
+      </ion-item-group>
+    </ion-list> 
   </ion-content>
   
   <ion-footer>
     <ion-toolbar>
       <p>{{ statusMessage }}</p>
+      <ion-buttons end>
+        <button ion-button icon-right color="royal" (click)="sendMessageAll()">
+          Send
+          <ion-icon name="send"></ion-icon>
+        </button>
+      </ion-buttons>
     </ion-toolbar>
   </ion-footer>
